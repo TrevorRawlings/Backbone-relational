@@ -986,6 +986,7 @@
 	 *  - 'update:<key>' (model, related model or collection, options)
 	 */
 	Backbone.RelationalModel = Backbone.Model.extend({
+        cacheInstances: true, // If instances should be added to Backbone.Relational.store
 		relations: null, // Relation descriptions on the prototype
 		_relations: null, // Relation instances
 		_isInitialized: false,
@@ -1224,13 +1225,17 @@
 			if ( !this._isInitialized && !this.isLocked() ) {
 				this.constructor.initializeModelHierarchy();
 
-				Backbone.Relational.store.register( this );
+                if (this.cacheInstances)   {
+				    Backbone.Relational.store.register( this );
+                }
 
 				this.initializeRelations();
 			}
 			// Update the 'idAttribute' in Backbone.store if; we don't want it to miss an 'id' update due to {silent:true}
 			else if ( attributes && this.idAttribute in attributes ) {
-				Backbone.Relational.store.update( this );
+                if (this.cacheInstances)  {
+				    Backbone.Relational.store.update( this );
+                }
 			}
 			
 			if ( attributes ) {
