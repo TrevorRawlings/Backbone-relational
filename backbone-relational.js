@@ -1057,6 +1057,17 @@
 			
 			return this;
 		},
+
+        // returns the relations defined on this and parent classes
+        getPrototypeRelations: function()
+        {
+             var constructor = this.constructor;
+             var relations = _.clone( constructor.prototype.relations );
+             if (constructor.__super__ && constructor.__super__.relations)     {
+                relations = _.union(relations, constructor.__super__.relations)
+             }
+             return relations
+        },
 		
 		/**
 		 * Initialize Relations present in this.relations; determine the type (HasOne/HasMany), then creates a new instance.
@@ -1066,7 +1077,7 @@
 			this.acquire(); // Setting up relations often also involve calls to 'set', and we only want to enter this function once
 			this._relations = [];
 			
-			_.each( this.relations, function( rel ) {
+			_.each( this.getPrototypeRelations(), function( rel ) {
 					var type = !_.isString( rel.type ) ? rel.type :	Backbone[ rel.type ] || Backbone.Relational.store.getObjectByName( rel.type );
 					if ( type && type.prototype instanceof Backbone.Relation ) {
 						new type( this, rel ); // Also pushes the new Relation into _relations
@@ -1308,11 +1319,15 @@
 		 * Convert relations to JSON, omits them when required
 		 */
 		toJSON: function() {
+            var json = null
+
 			// If this Model has already been fully serialized in this branch once, return to avoid loops
 			if ( this.isLocked() ) {
 				return this.id;
 			}
-			
+
+            try {
+
 			this.acquire();
 			var json = Backbone.Model.prototype.toJSON.call( this );
 			
@@ -1373,8 +1388,11 @@
 						delete json[ rel.key ];
 					}
 				});
-			
-			this.release();
+
+            } finally {
+                this.release();
+            }
+
 			return json;
 		}
 	},
