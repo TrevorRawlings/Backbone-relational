@@ -789,7 +789,11 @@
 				collection = new this.collectionType( [], this._getCollectionOptions() );
 			}
 
-			collection.model = this.relatedModel;
+            // TR: Don't override collection.model if its already been set
+            if ((!collection.model) || (collection.model == Backbone.Model))    {
+
+               collection.model = this.relatedModel;
+            }
 			
 			if ( this.options.collectionKey ) {
 				var key = this.options.collectionKey === true ? this.options.reverseRelation.key : this.options.collectionKey;
@@ -1537,6 +1541,11 @@
 		
 		return model;
 	}
+
+    // TR: Allow collection to check the item is valid before doing add
+    Backbone.Collection.prototype.beforeAdd = function(model) {
+        return true;
+    }
 	
 	/**
 	 * Override Backbone.Collection.add, so objects fetched from the server multiple times will
@@ -1565,7 +1574,7 @@
 					}
 				}
 
-				if ( model instanceof Backbone.Model && !this.get( model ) && !this.getByCid( model ) ) {
+            if ( model instanceof Backbone.Model && !this.get( model ) && !this.getByCid( model ) && this.beforeAdd( model ) ) {
 					modelsToAdd.push( model );
 				}
 			}, this );
