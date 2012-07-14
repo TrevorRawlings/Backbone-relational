@@ -343,7 +343,15 @@
 		},
 
         clear: function() {
-           this._collections = [];
+            _.each(this._collections, function(coll) {
+                var models = coll.models.slice(0);
+                _.each(models, function(model) {
+                    model.unbind( 'destroy', this.unregister);
+                    // Probably don't want to call coll.remove( model ) here because that will result in a call
+                    // to Relation._modelRemovedFromCollection() which in turn calls model.destroy()
+                }, this);
+            }, this);
+            this._collections = [];
         }
 	});
 	Backbone.Relational.store = new Backbone.Store();
