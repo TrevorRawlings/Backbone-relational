@@ -1005,6 +1005,9 @@
 		subModelTypes: null,
 		
 		constructor: function( attributes, options ) {
+            // Ensure each object gets its own callbacks object
+            this._callbacks = {};
+
 			// Nasty hack, for cases like 'model.get( <HasMany key> ).add( item )'.
 			// Defer 'processQueue', so that when 'Relation.createModels' is used we:
 			// a) Survive 'Backbone.Collection.add'; this takes care we won't error on "can't add model to a set twice"
