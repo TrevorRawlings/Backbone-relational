@@ -461,8 +461,6 @@
 			this._collections = [];
 			this._subModels = [];
 			this._modelScopes = [ exports ];
-            this._collections = [];
-        }
 		}
 	});
 	Backbone.Relational.store = new Backbone.Store();
@@ -1715,10 +1713,6 @@
 	};
 
 
-    // TR: Allow collection to check the item is valid before doing add
-    Backbone.Collection.prototype.beforeAdd = function(model) {
-        return true;
-    }
 	
 	/**
 	 * Override Backbone.Collection.set, so we'll create objects from attributes where required,
